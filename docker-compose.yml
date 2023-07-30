@@ -1,5 +1,9 @@
 version: "3"
 
+networks:
+  webnet:
+    driver: bridge  # Use the "overlay" driver for multi-host networking
+
 services:
   webserver:
     build:
@@ -30,8 +34,15 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "test.loc:127.0.0.1"
+      - "test.local:127.0.0.1"
+      - "fest.loc:127.0.0.1"
       - "laravel.local:127.0.0.1"
       - "eltesan.local:127.0.0.1"
+      - "market.localhost:127.0.0.1"
+      - "shop.localhost:127.0.0.1"
+    networks:
+      - webnet
+
   database:
     build:
       context: "./bin/${DATABASE}"
@@ -48,6 +59,8 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    networks:
+      - webnet
 
   postgres:
     image: "postgres:${POSTGRES_VERSION}"
@@ -61,6 +74,8 @@ services:
     volumes:
       - ${POSTGRES_DATA_DIR-./data/postgres}:/var/lib/postgresql/data
       - ${POSTGRES_LOG_DIR-./logs/postgres}:/var/log/postgresql
+    networks:
+      - webnet
 
   phpmyadmin:
     image: phpmyadmin
@@ -83,8 +98,13 @@ services:
     volumes:
       - /sessions
       - ${PHP_INI-./config/php/php.ini}:/usr/local/etc/php/conf.d/php-phpmyadmin.ini
+    networks:
+      - webnet
+
   redis:
     container_name: "${COMPOSE_PROJECT_NAME}-redis"
     image: redis:latest
     ports:
       - "127.0.0.1:${HOST_MACHINE_REDIS_PORT}:6379"
+    networks:
+      - webnet
