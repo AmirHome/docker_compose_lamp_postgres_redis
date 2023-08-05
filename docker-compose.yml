@@ -33,13 +33,11 @@ services:
       XDEBUG_CONFIG: "client_host=host.docker.internal remote_port=${XDEBUG_PORT}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-      - "test.loc:127.0.0.1"
       - "test.local:127.0.0.1"
-      - "fest.loc:127.0.0.1"
       - "laravel.local:127.0.0.1"
       - "eltesan.local:127.0.0.1"
-      - "market.localhost:127.0.0.1"
-      - "shop.localhost:127.0.0.1"
+      - "shop.local:127.0.0.1"
+      - "e-shop.local:127.0.0.1"
     networks:
       - webnet
 
