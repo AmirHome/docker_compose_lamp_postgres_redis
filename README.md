@@ -295,3 +295,6 @@ In Production you should modify at a minimum the following subjects:
 
 - php handler: mod_php=> php-fpm
 - secure mysql users with proper source IP limitations
+
+## Restart Apache
+service apache2 restart
