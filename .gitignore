@@ -1,8 +1,8 @@
-/.env
+
 /.vscode
-/config/*
-/data/*
-/logs/*
+/docker/config/*
+/docker/data/*
+/docker/logs/*
 /www/**
 .DS_Store
 /buildtest
