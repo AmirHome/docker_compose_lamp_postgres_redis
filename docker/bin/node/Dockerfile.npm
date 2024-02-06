@@ -1,0 +1,33 @@
+FROM node:18.15.0
+
+# RUN apk add --no-cache libc6-compat
+
+# set main params
+ARG BUILD_ARGUMENT_ENV=3000
+
+# Set working directory
+WORKDIR /app
+
+# Install dependencies
+RUN rm -rf node_modules
+RUN rm -rf .next
+RUN rm -rf package-lock.json
+
+RUN npm install --omit=optional
+# RUN npx browserslist@latest --update-db
+RUN npx next telemetry disable
+
+# need to install linux specific swc builds
+RUN npm install -D @swc/cli @swc/core
+
+# RUN yarn install
+# RUN npm run build
+
+# Set environment variables
+ENV NODE_ENV=development
+ENV PORT=3000
+
+# Expose the port
+EXPOSE 3000
+
+CMD [ "npm", "start" ]

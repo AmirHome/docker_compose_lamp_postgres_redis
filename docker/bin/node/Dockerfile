@@ -1,32 +1,35 @@
-FROM node:18.15.0
+FROM node:16.17.0-alpine3.15
 
-# set main params
-ARG BUILD_ARGUMENT_ENV=3000
+RUN apk add --no-cache libc6-compat
 
-# Set working directory
-WORKDIR /var/www/html/client
-
-# Install dependencies
-# COPY package.json .
-# COPY yarn.lock .
-RUN rm -rf node_modules
-RUN rm -rf .next
-RUN rm -rf package-lock.json
-
-# RUN yarn install
-
-# Copy source code
-COPY . .
-
-# Set environment variables
-ENV NODE_ENV=development
-ENV PORT=3000
-
-# Expose the port
 EXPOSE 3000
 
-# Start the Next.js development server
-# CMD ["yarn", "dev", "-p", "3000"]
-# CMD ["yarn", "install"]
-# CMD ["yarn", "build"]
-# CMD ["yarn", "start", "-p", "3000"]
+ENV PORT 3000
+ENV NODE_ENV production
+
+WORKDIR /app
+
+RUN rm -rf node_modules
+RUN rm -rf .next
+# RUN rm -rf package-lock.json
+
+# COPY package.json .
+# COPY package-lock.json .D
+
+RUN npm install --omit=optional
+RUN npx browserslist@latest --update-db
+RUN npx next telemetry disable
+
+# need to install linux specific swc builds
+RUN npm install -D @swc/cli @swc/core
+
+COPY . .
+
+RUN npm run build
+
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+
+USER nextjs
+
+CMD [ "npm", "start" ]

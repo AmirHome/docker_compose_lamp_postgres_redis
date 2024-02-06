@@ -1,0 +1,25 @@
+#syntax=docker/dockerfile:1.4
+FROM node:18.15.0-alpine
+
+# Install dependencies only when needed
+#// FROM base AS deps
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat
+
+RUN mkdir -p /app
+WORKDIR /app
+
+# Install dependencies based on the preferred package manager
+COPY --link package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+
+# install dependencies
+RUN yarn install --frozen-lockfile
+
+# COPY . .
+
+# EXPOSE 3000
+
+# ENV PORT 3000
+ENV HOSTNAME localhost
+
+CMD ["yarn", "dev"]

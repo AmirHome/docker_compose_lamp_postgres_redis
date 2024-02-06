@@ -74,7 +74,7 @@ Define your custom `php.ini` modification to meet your requirments.
 
 ---
 
-_**DOCUMENT_ROOT**_
+_**BACKEND_ROOT**_
 
 It is a document root for Apache server. The default value for this is `./www`. All your sites will go here and will be synced automatically.
 

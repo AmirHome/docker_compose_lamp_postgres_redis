@@ -17,14 +17,14 @@ services:
     links:
       - database
     volumes:
-      - ${DOCUMENT_ROOT-./www}:/var/www/html:rw
+      - ${BACKEND_ROOT-./www}:/var/www/html:rw
       - ${PHP_INI-./docker/config/php/php.ini}:/usr/local/etc/php/php.ini
       - ${SSL_DIR-./docker/config/ssl}:/etc/apache2/ssl/
       - ${VHOSTS_DIR-./docker/config/vhosts}:/etc/apache2/sites-enabled
       - ${LOG_DIR-./docker/logs/apache2}:/var/log/apache2
       - ${XDEBUG_LOG_DIR-./docker/logs/xdebug}:/var/log/xdebug
     environment:
-      APACHE_DOCUMENT_ROOT: ${APACHE_DOCUMENT_ROOT-/var/www/html}
+      APACHE_DOCUMENT_ROOT: /var/www/html
       PMA_PORT: ${HOST_MACHINE_PMA_PORT}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_USER: ${MYSQL_USER}
@@ -32,6 +32,8 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       HOST_MACHINE_MYSQL_PORT: ${HOST_MACHINE_MYSQL_PORT}
       XDEBUG_CONFIG: "client_host=host.docker.internal remote_port=${XDEBUG_PORT}"
+      HOST_MACHINE_SECURE_HOST_PORT: ${HOST_MACHINE_SECURE_HOST_PORT}
+      HOST_MACHINE_UNSECURE_HOST_PORT: ${HOST_MACHINE_UNSECURE_HOST_PORT}
     extra_hosts:
       - "host.docker.internal:host-gateway"
       - "localhost:127.0.0.1"
@@ -40,8 +42,49 @@ services:
       - "eltesan.localhost:127.0.0.1"
       - "shop.localhost:127.0.0.1"
       - "e-shop.localhost:127.0.0.1"
+      - "yanhak.localhost:127.0.0.1"
     networks:
       - webnet
+    deploy: 
+      replicas: 1
+
+  nextjs-dev:
+    build:
+      dockerfile: ./docker/bin/node/Dockerfile.dev
+      #dockerfile: ./docker/bin/node/Dockerfile.dev
+    container_name: ${APP_NAME}-nextjs-dev
+    ports:
+      - 5858:5858
+    restart: no
+    volumes:
+      - ${FERONTEND_ROOT-./www}:/app
+      - /app/node_modules
+      - /app/.next
+    # depends_on: 
+    #   - api
+    networks:
+      - webnet
+  #   deploy:
+  #     replicas: 1
+
+  nginx:
+    image: nginx:1.23.3-alpine
+    container_name: "${COMPOSE_PROJECT_NAME}-nginx"
+    ports:
+      - ${WEB_NEXTJS_PORT_HTTP}:80
+      - ${WEB_NEXTJS_PORT_HTTPS}:443
+    environment:
+      - WEB_NEXTJS_PORT_HTTPS=$WEB_NEXTJS_PORT_HTTPS
+    volumes:
+      - ./docker/config/ssl:/etc/nginx/ssl:ro
+      - ./docker/config/nginx/nginx.conf:/etc/nginx/nginx.conf
+    # depends_on: 
+    #   - api
+    networks:
+      - webnet
+    restart: always
+    deploy:
+      replicas: 0
 
   database:
     build:
@@ -100,6 +143,8 @@ services:
       - ${PHP_INI-./docker/config/php/php.ini}:/usr/local/etc/php/conf.d/php-phpmyadmin.ini
     networks:
       - webnet
+    deploy:
+      replicas: 0
 
   redis:
     container_name: "${COMPOSE_PROJECT_NAME}-redis"
@@ -108,3 +153,5 @@ services:
       - "127.0.0.1:${HOST_MACHINE_REDIS_PORT}:6379"
     networks:
       - webnet
+    deploy:
+      replicas: 0
