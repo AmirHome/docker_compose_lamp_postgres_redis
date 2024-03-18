@@ -36,7 +36,7 @@ openssl && \
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Install xdebug
-RUN pecl install xdebug-3.1.4 && \
+RUN pecl install xdebug-3.3.1 && \
     docker-php-ext-enable xdebug && \
     mkdir /var/log/xdebug
 
@@ -84,10 +84,10 @@ RUN docker-php-ext-install pdo_mysql && \
 # Install Freetype 
 RUN apt-get -y update && \
     apt-get --no-install-recommends install -y libfreetype6-dev \
-libjpeg62-turbo-dev \
-libpng-dev && \
+    libjpeg62-turbo-dev \
+    libpng-dev && \
     rm -rf /var/lib/apt/lists/* && \
-    docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp && \
+    docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg && \
     docker-php-ext-install gd
 
 # Insure an SSL directory exists
