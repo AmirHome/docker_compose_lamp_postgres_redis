@@ -85,11 +85,12 @@ services:
   #   deploy:
   #     replicas: 0
 
+  # Run solo docker-compose up --build database
   database:
     build:
       context: "./docker/bin/${DATABASE}"
     container_name: "${COMPOSE_PROJECT_NAME}-${DATABASE}"
-    restart: "always"
+    restart: "no"
     ports:
       - "127.0.0.1:${HOST_MACHINE_MYSQL_PORT}:3306"
     volumes:
