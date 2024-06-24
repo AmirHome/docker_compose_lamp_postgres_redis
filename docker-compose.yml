@@ -105,6 +105,38 @@ services:
     networks:
       - webnet
 
+  mssql:
+      container_name: mssql
+      build:
+        context: ./docker/bin/mssql/
+        dockerfile: Dockerfile
+      ports:
+        - ${MSSQL_PORT}:1433
+      environment:
+        - ACCEPT_EULA=Y
+        - SA_PASSWORD=${MSSQL_SA_PASSWORD}
+        - TZ=Europe/Istanbul   # Set the timezone to Istanbul
+        # args:
+        #   - DB_PASSWORD=${DB_PASSWORD}
+      volumes:
+        - ./docker/data/mssql/:/var/opt/mssql/data
+      networks:
+        - webnet
+      deploy:
+        resources:
+          limits:
+            cpus: "${MSSQL_LIMIT_CPU:-0.5}"
+            memory: "${MSSQL_LIMIT_MEMORY:-2000M}"
+          # reservations:
+            #   cpus: '0.25'
+            #   memory: 256M
+
+      ### Commands 
+      # docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' db-mssql;
+      # docker exec -it db-mssql bash
+      # /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'Root@123' -Q 'CREATE DATABASE ferah;'
+
+  
   # postgres:
   #   image: "postgres:${POSTGRES_VERSION}"
   #   container_name: "postgres-${POSTGRES_VERSION}"
